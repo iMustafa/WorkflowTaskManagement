@@ -6,7 +6,9 @@
   "main": "index.js",
   "scripts": {
     "serve": "nodemon index.ts",
-    "test": "cross-env NODE_ENV=test jest ./test/index.spec.ts --testTimeout=10000"
+    "test": "cross-env NODE_ENV=test jest ./test/index.spec.ts --testTimeout=10000",
+    "setup": "npm install && cd client && npm install",
+    "build": "npm run build --prefix client"
   },
   "author": "",
   "license": "ISC",
