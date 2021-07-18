@@ -3,7 +3,8 @@ require('dotenv').config();
 
 const options = {
   useNewUrlParser: true,
-  useUnifiedTopology: true
+  useUnifiedTopology: true,
+  useFindAndModify: false
 };
 
 const init = async () => {
