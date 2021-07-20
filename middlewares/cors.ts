@@ -10,7 +10,7 @@ import { Request, Response, NextFunction } from 'express';
 const cors = (req: Request, res: Response, next: NextFunction): void => {
   res.append('Access-Control-Allow-Origin', '*');
   res.append('Access-Control-Allow-Headers', '*');
-  res.header('Access-Control-Allow-Methods', 'PUT, POST, GET, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Methods', 'PUT, POST, GET, DELETE, OPTIONS, PATCH');
   next();
 };
 

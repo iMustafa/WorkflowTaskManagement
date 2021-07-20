@@ -16,6 +16,8 @@ export const AuthTests = () => {
     expect(body.user.email).toBe(data.create_account_owner.email);
     expect(body.user.password).not.toBe(data.create_account_owner.password);
     expect(body.account.name).toBe(data.create_account_owner.name);
+    expect(body.token).toBeDefined();
+    expect(body.user.account).toBeDefined();
 
     writeFileSync("./token.json", JSON.stringify({ account_owner: body.user, account: body.account }), 'utf-8');
 

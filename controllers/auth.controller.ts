@@ -28,8 +28,11 @@ const register = async (req: Request, res: Response, next: NextFunction) => {
       name,
       owner: user._id
     });
-    await RoleMapping.create({account: account._id, user: user._id, role: "owner"});
-    return res.status(201).json({ user: user.toJSON(), account: account.toJSON() });
+    await RoleMapping.create({ account: account._id, user: user._id, role: "owner" });
+    const _user = await User.findByIdAndUpdate(user._id, { account: account._id }, { new: true })
+
+    const token = await signJWT(_user.toJSON());
+    return res.status(201).json({ user: _user.toJSON(), account: account.toJSON(), token });
   }
 
   return res.status(201).json({ user: user.toJSON() });

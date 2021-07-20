@@ -25,6 +25,7 @@ export interface IUser {
 export interface IRegisterResponse {
   user: IUser;
   account?: IAccount;
+  token: string;
 }
 
 export interface ILoginResponse {
