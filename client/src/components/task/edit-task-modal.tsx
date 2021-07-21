@@ -2,22 +2,24 @@ import React from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { makeStyles } from "@material-ui/core";
 import Dialog from "@material-ui/core/Dialog";
-import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
+import TextField from "@material-ui/core/TextField";
 import CircularProgress from "@material-ui/core/CircularProgress";
-import Divider from "@material-ui/core/Divider";
 import FormControl from "@material-ui/core/FormControl";
 import Select from "@material-ui/core/Select";
 import InputLabel from "@material-ui/core/InputLabel";
 import MenuItem from "@material-ui/core/MenuItem";
 import { RootState, RootDispatch } from "../../redux/store";
-import { AddTask, HideCreateTaskModal } from "../../redux/actions/tasks.actions";
-import { CreateTask } from "../../providers/task.provider";
+import {
+  CloseDialogs,
+  EditTaskDispatcher,
+} from "../../redux/actions/tasks.actions";
+import { UpdateTask } from "../../providers/task.provider";
 
-interface ICreateTaskModalFormState {
-  name: string;
-  description: string;
-  assignee: string;
+interface IEditTaskModalState {
+  name?: string;
+  description?: string;
+  assignee?: string;
 }
 
 const useStyles = makeStyles(() => ({
@@ -29,24 +31,32 @@ const useStyles = makeStyles(() => ({
     justifyContent: "center",
     alignItems: "center",
   },
+  btnContainer: {
+    marginTop: 25,
+  },
 }));
 
-const CreateTaskModal = () => {
+const EditTaskModal = () => {
   const classes = useStyles();
-  const [form, setForm] = React.useState<ICreateTaskModalFormState>({
-    name: "",
-    description: "",
-    assignee: "",
-  });
-  const [isLoading, setIsLoading] = React.useState(false);
-
   const dispatch = useDispatch<RootDispatch>();
-
-  const { selected_workflow, workflows, selected_stage } = useSelector(
-    (state: RootState) => state.workflow
-  );
-  const open = useSelector((state: RootState) => state.task.show_create_dialog);
   const users = useSelector((state: RootState) => state.user.users);
+  const { show_edit_dialog, altering_task } = useSelector(
+    (state: RootState) => state.task
+  );
+  const [form, setForm] = React.useState<IEditTaskModalState>({});
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [isReady, setIsReady] = React.useState(false);
+
+  React.useEffect(() => {
+    if (!altering_task) return setIsReady(false);
+
+    setForm({
+      assignee: altering_task?.assignee,
+      description: altering_task?.description,
+      name: altering_task?.name,
+    });
+    setIsReady(true);
+  }, [altering_task]);
 
   const handleChange = React.useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -57,33 +67,39 @@ const CreateTaskModal = () => {
   );
 
   const handleClose = () => {
-    dispatch(HideCreateTaskModal());
+    dispatch(CloseDialogs());
   };
 
-  const handleSubmit = async () => {
+  const handleEdit = async () => {
     try {
       setIsLoading(true);
-      const stage = selected_stage;
-      const workflow = workflows[selected_workflow]._id;
-      const payload = { ...form, stage, workflow };
-      
-      const _task = await CreateTask(payload);
+      // @ts-ignore
+      const { _id, stage } = altering_task;
 
-      dispatch(AddTask({stage, task: _task}));
+      await UpdateTask({ _id, stage, task: form });
+
+      dispatch(EditTaskDispatcher({ _id, stage, task: form }));
+      handleClose();
     } catch (e) {
       console.log(e);
     } finally {
       setIsLoading(false);
-      handleClose();
     }
   };
 
-  return (
-    <Dialog open={open} onClose={handleClose}>
-      <div className={classes.root}>
-        <h3>Create new task: ({selected_stage})</h3>
+  if (!isReady)
+    return (
+      <Dialog open={show_edit_dialog} onClose={handleClose}>
+        <div className={classes.loader}>
+          <CircularProgress size={50} />
+        </div>
+      </Dialog>
+    );
 
-        <Divider style={{ marginBottom: 20 }} />
+  return (
+    <Dialog open={show_edit_dialog} onClose={handleClose}>
+      <div className={classes.root}>
+        <h1>Editing task: {altering_task?.name}</h1>
 
         <TextField
           name="name"
@@ -128,18 +144,15 @@ const CreateTaskModal = () => {
             <CircularProgress />
           </div>
         ) : (
-          <Button
-            color="primary"
-            fullWidth
-            onClick={handleSubmit}
-            style={{ marginTop: 25 }}
-          >
-            Create Task
-          </Button>
+          <div className={classes.btnContainer}>
+            <Button fullWidth color="primary" onClick={handleEdit}>
+              Update
+            </Button>
+          </div>
         )}
       </div>
     </Dialog>
   );
 };
 
-export default CreateTaskModal;
+export default EditTaskModal;

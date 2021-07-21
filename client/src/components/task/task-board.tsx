@@ -6,6 +6,8 @@ import { DragDropContext, DropResult } from "react-beautiful-dnd";
 import { RootState, RootDispatch } from "../../redux/store";
 import TaskColumn from "./task-column";
 import CreateTaskModal from "./create-task-modal";
+import DeleteTaskModal from "./delete-task-modal";
+import EditTaskModal from "./edit-task-modal";
 import { GetWorkflowTasks } from "../../providers/workflow.provider";
 import { LoadTasks } from "../../redux/actions/tasks.actions";
 import { UpdateTaskStage } from "../../providers/task.provider";
@@ -25,7 +27,7 @@ const TaskBoard = () => {
   const { workflows, selected_workflow } = useSelector(
     (state: RootState) => state.workflow
   );
-  const columns = useSelector((state: RootState) => state.task.columns);
+  const columns = useSelector((state: RootState) => state.task['columns']);
   const [isLoading, setIsLoading] = React.useState(false);
 
   React.useEffect(() => {
@@ -67,7 +69,7 @@ const TaskBoard = () => {
     // @ts-ignore
     const end = columns[destination.droppableId];
 
-    if (start === end) {
+    if (start === end) {      
       const newList = start.list.filter(
         (_: any, idx: number) => idx !== source.index
       );
@@ -124,6 +126,8 @@ const TaskBoard = () => {
   return (
     <React.Fragment>
       <CreateTaskModal />
+      <DeleteTaskModal />
+      <EditTaskModal />
 
       <DragDropContext onDragEnd={onDragEnd}>
         <div

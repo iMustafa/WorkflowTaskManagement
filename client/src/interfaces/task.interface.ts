@@ -27,3 +27,19 @@ export interface IUpdateTaskStagePayload {
   _id: string;
   stage: string;
 }
+
+export interface IUpdateTaskPayload {
+  _id: string;
+  stage: string;
+  task: Partial<ITask>;
+}
+
+export interface IAlterTaskPayload {
+  task: ITask;
+  index: number;
+}
+
+export interface IDeleteTaskPayload {
+  _id: string;
+  stage: string;
+}
